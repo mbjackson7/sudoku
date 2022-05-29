@@ -59,27 +59,37 @@ def initialize_possibilities():
         for _ in range(9):
             possibleVals[i].append([1,2,3,4,5,6,7,8,9])
 
-    rows = cols = boxes = possibleVals[0]
-
-    return possibleVals, rows, cols, boxes
+    return possibleVals
 
 def solve_sudoku(board):
-    possibleVals, possRows, possCols, possBoxes = initialize_possibilities()
+    possibleVals = initialize_possibilities()
     unsolved = True
-    #while(unsolved):
-    for row in range(9):
-        for col in range(9):
-            value = board[row][col]
-            if value != ' ':
-                print(value, row, col)
-                for i in range(9):
-                    if type(possibleVals[i][col]) != int and value in possibleVals[i][col]:
-                        possibleVals[i][col].remove(value)
-                    if type(possibleVals[row][i]) != int and value in possibleVals[row][i]:
-                        possibleVals[row][i].remove(value)
-                    
-                possibleVals[row][col] = value
-            print_board(possibleVals)
+    while(unsolved):
+        for row in range(9):
+            for col in range(9):
+                value = board[row][col]
+                if value != ' ':
+                    #print(value, row, col)
+                    for i in range(9):
+                        if type(possibleVals[i][col]) != int and value in possibleVals[i][col]:
+                            possibleVals[i][col].remove(value)
+                        if type(possibleVals[row][i]) != int and value in possibleVals[row][i]:
+                            possibleVals[row][i].remove(value)
+                    rowModifier = row//3 * 3
+                    colModifier = col//3 * 3
+                    for boxRow in range(3):
+                        for boxCol in range(3):
+                            if type(possibleVals[boxRow+rowModifier][boxCol+colModifier]) != int and value in possibleVals[boxRow+rowModifier][boxCol+colModifier]:
+                                possibleVals[boxRow+rowModifier][boxCol+colModifier].remove(value)
+                    possibleVals[row][col] = value
+        unsolved = False
+        for row in range(9):
+            for col in range(9):
+                if type(possibleVals[row][col]) != int and len(possibleVals[row][col]) == 1:
+                    unsolved = True
+                    possibleVals[row][col] = board[row][col] = possibleVals[row][col][0]
+        print_board(possibleVals)
+    return board
 
 
 
@@ -87,7 +97,7 @@ def main():
     board = get_board()
     board = initialize_board(board)
     print_board(board)
-    solve_sudoku(board)
+    board = solve_sudoku(board)
     print_board(board)
 
 
