@@ -1,3 +1,5 @@
+import time
+
 def get_board():
     board = []
     for i in range(9):
@@ -266,11 +268,14 @@ def solve_sudoku(board):
     return board
 
 def main():
+    start = time.time()
     board = initialize_possibilities()
-    board = initialize_expert_board(board)
+    board = initialize_board(board)
     print_board(board)
     board = solve_sudoku(board)
     print_board(board)
+    end = time.time()
+    print("Elapsed Time:" + str(end - start))
 
 if __name__ == "__main__":
     main()
