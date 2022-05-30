@@ -20,7 +20,7 @@ def populate_board():
 def reduce_board(board):
     trueSolution = copy.deepcopy(board)
     repetitions = 0
-    while repetitions < 10000:
+    while repetitions < 100:
         row = random.randrange(9)
         col = random.randrange(9)
         removedVal = board[row][col]
@@ -47,7 +47,7 @@ def main():
     print_board(board)
     board = reduce_board(board)
     print_board(board)
-    print(board)
+    #print(board)
     end = time.time()
     print("Elapsed Time:" + str(end - start))
 
