@@ -1,4 +1,3 @@
-
 def get_board():
     board = []
     for i in range(9):
@@ -41,61 +40,157 @@ def initialize_board(board):
     board[8][8] = 9
     return board
 
+def initialize_expert_board(board):
+    board[0][2] = 5
+    board[0][6] = 2
+    board[0][8] = 3
+    board[1][1] = 6
+    board[1][2] = 8
+    board[1][3] = 7
+    board[2][0] = 1
+    board[2][2] = 9
+    board[3][3] = 9
+    board[3][6] = 3
+    board[3][8] = 5
+    board[4][1] = 1
+    board[4][4] = 5
+    board[4][7] = 4
+    board[4][8] = 2
+    board[6][3] = 6
+    board[6][4] = 4
+    board[6][6] = 5
+    board[7][1] = 8
+    board[7][7] = 7
+    board[8][0] = 6
+    board[8][3] = 1
+    board[8][4] = 2
+    return board
+
+def initialize_counts():
+  counts = {
+    "rows": {},
+    "cols": {},
+    "boxes": {},
+  }
+  for i in range(9):
+    counts["rows"][i] = {}
+    counts["cols"][i] = {}
+    counts["boxes"][i] = {}
+    for j in [1,2,3,4,5,6,7,8,9]:
+      counts["rows"][i][j] = 0
+      counts["cols"][i][j] = 0
+      counts["boxes"][i][j] = 0
+  return counts
+
 def print_board(board):
-    print("---------------------")
-    for i in range(9):
-        for j in range(9):
-            print(board[i][j], end=" ")
-            if j == 2 or j == 5:
+    print("\n---------------------")
+    for row in range(9):
+        for col in range(9):
+            if type(board[row][col]) == int:
+              print(board[row][col], end=" ")
+            else:
+              print(" ", end=" ")
+            if col == 2 or col == 5:
                 print("|", end=" ")
         print()
-        if i == 2 or i == 5 or i == 8:
+        if row == 2 or row == 5 or row == 8:
             print("---------------------")
 
-def initialize_possibilities():
-    possibleVals = []
-    for i in range(9):
-        possibleVals.append([])
-        for _ in range(9):
-            possibleVals[i].append([1,2,3,4,5,6,7,8,9])
+def get_box(row, col):
+  boxRow = row//3
+  boxCol = col//3
+  box = -1
+  if boxRow == 0 and boxCol == 0:
+    box = 0
+  elif boxRow == 0 and boxCol == 1:
+    box = 1
+  elif boxRow == 0 and boxCol == 2:
+    box = 2 
+  elif boxRow == 1 and boxCol == 0:
+    box = 3
+  elif boxRow == 1 and boxCol == 1:
+    box = 4
+  elif boxRow == 1 and boxCol == 2:
+    box = 5  
+  elif boxRow == 2 and boxCol == 0:
+    box = 6
+  elif boxRow == 2 and boxCol == 1:
+    box = 7
+  elif boxRow == 2 and boxCol == 2:
+    box = 8   
+  return box
 
-    return possibleVals
+def initialize_possibilities():
+    board = []
+    for i in range(9):
+        board.append([])
+        for _ in range(9):
+            board[i].append([1,2,3,4,5,6,7,8,9])
+
+    return board
+
+def set_value(board, value, row, col):
+  for i in range(9):
+      if type(board[i][col]) != int and value in board[i][col]:
+          board[i][col].remove(value)
+      if type(board[row][i]) != int and value in board[row][i]:
+          board[row][i].remove(value)
+  rowModifier = row//3 * 3
+  colModifier = col//3 * 3
+  for boxRow in range(3):
+      for boxCol in range(3):
+          if type(board[boxRow+rowModifier][boxCol+colModifier]) != int and value in board[boxRow+rowModifier][boxCol+colModifier]:
+              board[boxRow+rowModifier][boxCol+colModifier].remove(value)
+  board[row][col] = value
+  print_board(board)
+  return board
 
 def solve_sudoku(board):
-    possibleVals = initialize_possibilities()
     unsolved = True
+    setList = initialize_possibilities()
     while(unsolved):
-        for row in range(9):
-            for col in range(9):
-                value = board[row][col]
-                if value != ' ':
-                    #print(value, row, col)
-                    for i in range(9):
-                        if type(possibleVals[i][col]) != int and value in possibleVals[i][col]:
-                            possibleVals[i][col].remove(value)
-                        if type(possibleVals[row][i]) != int and value in possibleVals[row][i]:
-                            possibleVals[row][i].remove(value)
-                    rowModifier = row//3 * 3
-                    colModifier = col//3 * 3
-                    for boxRow in range(3):
-                        for boxCol in range(3):
-                            if type(possibleVals[boxRow+rowModifier][boxCol+colModifier]) != int and value in possibleVals[boxRow+rowModifier][boxCol+colModifier]:
-                                possibleVals[boxRow+rowModifier][boxCol+colModifier].remove(value)
-                    possibleVals[row][col] = value
         unsolved = False
         for row in range(9):
             for col in range(9):
-                if type(possibleVals[row][col]) != int and len(possibleVals[row][col]) == 1:
-                    unsolved = True
-                    possibleVals[row][col] = board[row][col] = possibleVals[row][col][0]
-        print_board(possibleVals)
+              if setList[row][col] != 1:
+                unsolved = True
+                value = board[row][col]
+                if type(value) != int and len(value) == 1:
+                  board = set_value(board, value[0], row, col)
+                  setList[row][col] = 1
+                elif type(value) == int:
+                  board = set_value(board, value, row, col)
+                  setList[row][col] = 1
+
+        counts = initialize_counts()
+        for row in range(9):
+          for col in range(9):
+            if type(board[row][col]) == list:
+              box = get_box(row, col)
+              for num in board[row][col]:
+                counts["rows"][row][num] += 1   
+                counts["cols"][col][num] += 1
+                counts["boxes"][box][num] += 1
+        #print(counts)
+        for row in range(9):
+          for col in range(9):
+            if type(board[row][col]) == list:
+              box = get_box(row, col)
+              for num in board[row][col]:
+                if counts["rows"][row][num] == 1:
+                  board = set_value(board, num, row, col)
+                  setList[row][col] = 1
+                elif counts["cols"][col][num] == 1:
+                  board = set_value(board, num, row, col)
+                  setList[row][col] = 1
+                elif counts["boxes"][box][num] == 1:
+                  board = set_value(board, num, row, col)
+                  setList[row][col] = 1
     return board
 
-
-
 def main():
-    board = get_board()
-    board = initialize_board(board)
+    board = initialize_possibilities()
+    board = initialize_expert_board(board)
     print_board(board)
     board = solve_sudoku(board)
     print_board(board)
