@@ -82,6 +82,18 @@ def initialize_counts():
       counts["boxes"][i][j] = 0
   return counts
 
+def initialize_pairs():
+  pairs = {
+    "rows": {},
+    "cols": {},
+    "boxes": {},
+  }
+  for i in range(9):
+    pairs["rows"][i] = []
+    pairs["cols"][i] = []
+    pairs["boxes"][i] = []
+  return pairs
+
 def print_board(board):
     print("\n---------------------")
     for row in range(9):
@@ -120,6 +132,26 @@ def get_box(row, col):
     box = 8   
   return box
 
+def get_box_coords(box):
+    if box == 0:
+        return 0,0
+    elif box == 1:
+        return 0,3    
+    elif box == 2:
+        return 0,6
+    elif box == 3:
+        return 3,0
+    elif box == 4:
+        return 3,3    
+    elif box == 5:
+        return 3,6
+    elif box == 6:
+        return 6,0
+    elif box == 7:
+        return 6,3    
+    elif box == 8:
+        return 6,6  
+
 def initialize_possibilities():
     board = []
     for i in range(9):
@@ -142,8 +174,75 @@ def set_value(board, value, row, col):
           if type(board[boxRow+rowModifier][boxCol+colModifier]) != int and value in board[boxRow+rowModifier][boxCol+colModifier]:
               board[boxRow+rowModifier][boxCol+colModifier].remove(value)
   board[row][col] = value
-  print_board(board)
+  #print_board(board)
   return board
+
+def only_spot_validation(board, setList):
+    counts = initialize_counts()
+    for row in range(9):
+        for col in range(9):
+            if type(board[row][col]) == list:
+                box = get_box(row, col)
+                for num in board[row][col]:
+                    counts["rows"][row][num] += 1   
+                    counts["cols"][col][num] += 1
+                    counts["boxes"][box][num] += 1
+    #print(counts)
+    for row in range(9):
+        for col in range(9):
+            if type(board[row][col]) == list:
+                box = get_box(row, col)
+                for num in board[row][col]:
+                    if counts["rows"][row][num] == 1:
+                        board = set_value(board, num, row, col)
+                        setList[row][col] = 1
+                    elif counts["cols"][col][num] == 1:
+                        board = set_value(board, num, row, col)
+                        setList[row][col] = 1
+                    elif counts["boxes"][box][num] == 1:
+                        board = set_value(board, num, row, col)
+                    setList[row][col] = 1
+    return board, setList
+
+def hidden_pair(board):
+    pairs = initialize_pairs()
+    for row in range(9):
+        for col in range(9):
+            pair = board[row][col]
+            if type(pair) == list and len(pair) == 2:
+                box = get_box(row, col)
+                #check if there is a pair in any rows
+                if pair in pairs["rows"][row]:
+                    for i in range(9):
+                        value = board[row][i]
+                        if type(value) == list and value != pair:
+                            for num in pair:
+                                if num in value:
+                                    board[row][i].remove(num)
+                else:
+                    pairs["rows"][row].append(pair)
+                #check if there is a pair in any columns
+                if pair in pairs["cols"][col]:
+                    for i in range(9):
+                        value = board[i][col]
+                        if type(value) == list and value != pair:
+                            for num in pair:
+                                if num in value:
+                                    board[i][col].remove(num)
+                else:
+                    pairs["cols"][col].append(pair)
+                if pair in pairs["boxes"][box]:
+                    x, y = get_box_coords(box)
+                    for i in range(3):
+                        for j in range(3):
+                            value = board[x+i][y+j]
+                            if type(value) == list and value != pair:
+                                for num in pair:
+                                    if num in value:
+                                        board[x+i][y+j].remove(num)
+                else:
+                    pairs["boxes"][box].append(pair)
+    return board
 
 def solve_sudoku(board):
     unsolved = True
@@ -152,7 +251,7 @@ def solve_sudoku(board):
         unsolved = False
         for row in range(9):
             for col in range(9):
-              if setList[row][col] != 1:
+              if setList[row][col] != 1 or type(board[row][col]) == list:
                 unsolved = True
                 value = board[row][col]
                 if type(value) != int and len(value) == 1:
@@ -162,30 +261,8 @@ def solve_sudoku(board):
                   board = set_value(board, value, row, col)
                   setList[row][col] = 1
 
-        counts = initialize_counts()
-        for row in range(9):
-          for col in range(9):
-            if type(board[row][col]) == list:
-              box = get_box(row, col)
-              for num in board[row][col]:
-                counts["rows"][row][num] += 1   
-                counts["cols"][col][num] += 1
-                counts["boxes"][box][num] += 1
-        #print(counts)
-        for row in range(9):
-          for col in range(9):
-            if type(board[row][col]) == list:
-              box = get_box(row, col)
-              for num in board[row][col]:
-                if counts["rows"][row][num] == 1:
-                  board = set_value(board, num, row, col)
-                  setList[row][col] = 1
-                elif counts["cols"][col][num] == 1:
-                  board = set_value(board, num, row, col)
-                  setList[row][col] = 1
-                elif counts["boxes"][box][num] == 1:
-                  board = set_value(board, num, row, col)
-                  setList[row][col] = 1
+        board, setList = only_spot_validation(board, setList)
+        board = hidden_pair(board)
     return board
 
 def main():
@@ -194,7 +271,6 @@ def main():
     print_board(board)
     board = solve_sudoku(board)
     print_board(board)
-
 
 if __name__ == "__main__":
     main()
