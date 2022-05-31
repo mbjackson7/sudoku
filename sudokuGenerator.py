@@ -1,5 +1,8 @@
-import time, random, copy
+import time
+import random
+import copy
 from sudokuSolver import initialize_possibilities, print_board, set_value, solve_sudoku
+
 
 def populate_board():
     broken = True
@@ -17,6 +20,7 @@ def populate_board():
                 break
     return board
 
+
 def reduce_board(board, remainingGoal):
     trueSolution = copy.deepcopy(board)
     repetitions = 0
@@ -27,7 +31,7 @@ def reduce_board(board, remainingGoal):
         removedVal = board[row][col]
         if type(removedVal) == list:
             continue
-        board[row][col] = [1,2,3,4,5,6,7,8,9]
+        board[row][col] = [1, 2, 3, 4, 5, 6, 7, 8, 9]
         newBoard = copy.deepcopy(board)
         #exportBoard = copy.deepcopy(board)
         genSolution = solve_sudoku(board)
@@ -37,15 +41,17 @@ def reduce_board(board, remainingGoal):
             board[row][col] = removedVal
             repetitions += 1
         else:
-          remaining -= 1
+            remaining -= 1
     #print("Remaining: " + str(remaining))
     return board
+
 
 def generate_board(remainingGoal=0):
     solution = populate_board()
     board = copy.deepcopy(solution)
     board = reduce_board(board, remainingGoal)
     return board, solution
+
 
 def main():
     start = time.time()
@@ -54,6 +60,7 @@ def main():
     print_board(board)
     end = time.time()
     print("Elapsed Time:" + str(end - start))
+
 
 if __name__ == "__main__":
     main()
