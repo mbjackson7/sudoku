@@ -57,52 +57,64 @@ def get_remaining(board):
 
 def main():
     strikes = 0
+    playing = True
     splash_screen()
     input()
     print_controls()
-    difficulty = input("Minimum Known Spaces (Skip For Max Difficulty): ")
-    if difficulty.isdigit():
-        difficulty = int(difficulty)
-    else:  
-        difficulty = 0
-    print("Generating Board...")
-    board, solution = generate_board(difficulty)
-    print("Go!")
-    start = time.time()
-    while get_remaining(board) > 0 and strikes < 3:
-      print_guided_board(board)
-      print("Remaining: " + str(get_remaining(board)) + "\n")
-      print("Strikes: " + str(strikes) + "\n")
-      answer = input("Next Answer: ")
-      if answer == "solve":
-        break
-      else:
-        answer = answer.split(',')
-        if type(answer) != list or len(answer) != 3 or not answer[0].isdigit() or not answer[1].isdigit() or not answer[2].isdigit():
-          print("Invalid Entry")
-          continue
-        row = int(answer[0]) - 1
-        col = int(answer[1]) - 1
-        value = int(answer[2])
-        if row not in range(9) or col not in range(9) or value-1 not in range(9):
-          print("Invalid Number")
-          continue
-
-        if solution[row][col] == value:
-          print("Correct!")
-          board[row][col] = value
+    while playing:
+      difficulty = input("Minimum Known Spaces (Skip For Max Difficulty): ")
+      if difficulty.isdigit():
+          difficulty = int(difficulty)
+      else:  
+          difficulty = 0
+      print("Generating Board...")
+      board, solution = generate_board(difficulty)
+      print("Go!")
+      start = time.time()
+      while get_remaining(board) > 0 and strikes < 3:
+        print_guided_board(board)
+        print("Remaining: " + str(get_remaining(board)) + "\n")
+        print("Strikes: " + str(strikes) + "\n")
+        answer = input("Next Answer: ")
+        if answer == "solve":
+          break
         else:
-          print("Miss!")
-          strikes += 1
+          answer = answer.split(',')
+          if type(answer) != list or len(answer) != 3 or not answer[0].isdigit() or not answer[1].isdigit() or not answer[2].isdigit():
+            print("Invalid Entry")
+            continue
+          row = int(answer[0]) - 1
+          col = int(answer[1]) - 1
+          value = int(answer[2])
+          if row not in range(9) or col not in range(9) or value-1 not in range(9):
+            print("Invalid Number")
+            continue
 
-    print_guided_board(solution)
-    if get_remaining(board) > 0:
-      print("Here's the solution, better luck next time and keep practicing!")
-    else:
-      print("You did it, congratulations!")
+          if solution[row][col] == value:
+            print("Correct!")
+            board[row][col] = value
+          else:
+            print("Miss!")
+            strikes += 1
 
-    end = time.time()
-    print("Elapsed Time:" + str(end - start))
+      print_guided_board(solution)
+      if get_remaining(board) > 0:
+        print("Here's the solution, better luck next time and keep practicing!")
+      else:
+        print("You did it, congratulations!")
+
+      end = time.time()
+      print("Elapsed Time:" + str(end - start) + "\n")
+      while True:
+        playAgain = input("Play again? (y/n): ")
+        if playAgain == "y":
+          print()
+          break
+        elif playAgain == "n":
+          playing = False
+          break
+        print()
+
 
 if __name__ == "__main__":
     main()
