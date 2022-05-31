@@ -1,6 +1,5 @@
 import time
 import random
-import copy
 from sudokuSolver import print_board, set_value
 from sudokuGenerator import generate_board
 
@@ -29,7 +28,7 @@ def print_controls():
     print("   \"<row>,<col>,<value>\"")
     print("   then press enter.")
     print()
-    print("   If you get stuck, you can type \"solve\" to get the solution")
+    print("   If you get stuck, you can type \"hint\" to have one space filled in \n   or \"solve\" to get the solution")
 
 
 def print_guided_board(board):
@@ -82,6 +81,17 @@ def get_time(seconds):
         return str(minutes) + ":" + sModifier + str(seconds)
 
 
+def hint(board, solution):
+  hint_given = False
+  while not hint_given:
+    row = random.randrange(9)
+    col = random.randrange(9)
+    if type(board[row][col]) == list:
+      board[row][col] = solution[row][col]
+      hint_given = True
+  return board
+
+
 def main():
     strikes = 0
     playing = True
@@ -105,6 +115,9 @@ def main():
             answer = input("Next Answer: ")
             if answer == "solve":
                 break
+            elif answer == "hint":
+                board = hint(board, solution)
+                continue
             else:
                 answer = answer.split(',')
                 if type(answer) != list or len(answer) != 3 or not answer[0].isdigit() or not answer[1].isdigit() or not answer[2].isdigit():
