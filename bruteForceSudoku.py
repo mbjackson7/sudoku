@@ -145,7 +145,7 @@ def Suduko(grid, row, col):
 
 start = time.time()
 grid = get_board()
-grid = initialize_board(grid)
+grid = initialize_expert_board(grid)
 if (Suduko(grid, 0, 0)):
     puzzle(grid)
 else:

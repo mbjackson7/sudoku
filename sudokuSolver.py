@@ -75,6 +75,27 @@ def get_custom_board():
 4, 5, 6, 7, 8, 9], [1, 2, 3, 4, 5, 6, 7, 8, 9]], [[1, 2, 3, 4, 5, 6, 7, 8, 9], [1, 2, 3, 4, 5, 6, 7, 8, 9], [1, 2, 3, 4, 5, 6, 7, 8, 9], 6, 1, [1, 2, 3, 4, 5, 6, 7, 8, 9], [1, 2, 3, 4, 5, 6, 7, 8, 9], [1, 2, 3, 4, 5, 6, 7, 8, 9], [1, 2, 3, 4, 5, 6, 7, 8, 9]]]
     return board
 
+def get_zero_board():
+  board=[
+    [0,0,8,  6,0,5,  0,1,0],
+    [0,0,0,  0,0,0,  4,2,0],
+    [0,1,0,  7,0,0,  0,0,0],
+
+    [0,0,0,  0,1,0,  5,3,0],
+    [0,0,0,  0,0,0,  0,8,0],
+    [3,0,0,  8,0,0,  0,0,9],
+
+    [0,4,0,  9,0,0,  0,0,0],
+    [0,9,7,  0,0,1,  6,0,0],
+    [0,3,0,  0,2,4,  0,0,0]
+  ]
+
+  for row in range(9):
+    for col in range(9):
+      if board[row][col] == 0:
+        board[row][col] = [1,2,3,4,5,6,7,8,9]
+  return board
+
 def initialize_counts():
   counts = {
     "rows": {},
@@ -107,7 +128,10 @@ def print_board(board):
     print("\n---------------------")
     for row in range(9):
         for col in range(9):
-            if type(board[row][col]) == int:
+            if board == None:
+              print("Unsolvable")
+              return
+            elif type(board[row][col]) == int:
               print(board[row][col], end=" ")
             else:
               print(" ", end=" ")
@@ -263,8 +287,10 @@ def solve_sudoku(board):
             for col in range(9):
               if setList[row][col] != 1 or type(board[row][col]) == list:
                 unsolved = True
-                if repetitions > 120:
-                    return
+                if repetitions > 100:
+                  if type(board[row][col]) == list and len(board[row][col]) == 0:
+                    print("0 Possibilities Error")
+                  return
                 value = board[row][col]
                 if type(value) != int and len(value) == 1:
                   board = set_value(board, value[0], row, col)
@@ -281,7 +307,8 @@ def solve_sudoku(board):
 def main():
     start = time.time()
     board = initialize_possibilities()
-    board = get_custom_board()
+    board = get_zero_board()
+    print(board)
     print_board(board)
     board = solve_sudoku(board)
     print_board(board)

@@ -17,10 +17,11 @@ def populate_board():
                 break
     return board
 
-def reduce_board(board):
+def reduce_board(board, remainingGoal):
     trueSolution = copy.deepcopy(board)
     repetitions = 0
-    while repetitions < 100:
+    remaining = 81
+    while repetitions < 60 and remaining > remainingGoal:
         row = random.randrange(9)
         col = random.randrange(9)
         removedVal = board[row][col]
@@ -35,19 +36,22 @@ def reduce_board(board):
         if genSolution != trueSolution:
             board[row][col] = removedVal
             repetitions += 1
+        else:
+          remaining -= 1
+    #print("Remaining: " + str(remaining))
     return board
-            
 
-
+def generate_board(remainingGoal=0):
+    solution = populate_board()
+    board = copy.deepcopy(solution)
+    board = reduce_board(board, remainingGoal)
+    return board, solution
 
 def main():
     start = time.time()
-    board = populate_board()
-    print("Solution:")
+    board, solution = generate_board()
+    print_board(solution)
     print_board(board)
-    board = reduce_board(board)
-    print_board(board)
-    #print(board)
     end = time.time()
     print("Elapsed Time:" + str(end - start))
 
