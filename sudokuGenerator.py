@@ -52,12 +52,22 @@ def generate_board(remainingGoal=0):
     board = reduce_board(board, remainingGoal)
     return board, solution
 
+def print_standard_board(board):
+    for row in range(9):
+        for col in range(9):
+            if type(board[row][col]) == list:
+                board[row][col] = 0
+    print("[")
+    for row in board:
+        print(str(row) + ",")
+    print("]")
 
 def main():
     start = time.time()
     board, solution = generate_board()
     print_board(solution)
     print_board(board)
+    print_standard_board(board)
     end = time.time()
     print("Elapsed Time:" + str(end - start))
 

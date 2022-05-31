@@ -1,3 +1,4 @@
+from copy import deepcopy
 import time
 
 
@@ -82,17 +83,17 @@ def get_custom_board():
 
 def get_zero_board():
     board = [
-        [0, 0, 8,  6, 0, 5,  0, 1, 0],
-        [0, 0, 0,  0, 0, 0,  4, 2, 0],
-        [0, 1, 0,  7, 0, 0,  0, 0, 0],
+        [8, 0, 0,  0, 0, 0,  0, 0, 0],
+        [0, 0, 3,  6, 0, 0,  0, 0, 0],
+        [0, 7, 0,  0, 9, 0,  2, 0, 0],
 
-        [0, 0, 0,  0, 1, 0,  5, 3, 0],
-        [0, 0, 0,  0, 0, 0,  0, 8, 0],
-        [3, 0, 0,  8, 0, 0,  0, 0, 9],
+        [0, 5, 0,  0, 0, 7,  0, 0, 0],
+        [0, 0, 0,  0, 4, 5,  7, 0, 0],
+        [0, 0, 0,  1, 0, 0,  0, 3, 0],
 
-        [0, 4, 0,  9, 0, 0,  0, 0, 0],
-        [0, 9, 7,  0, 0, 1,  6, 0, 0],
-        [0, 3, 0,  0, 2, 4,  0, 0, 0]
+        [0, 0, 1,  0, 0, 0,  0, 6, 8],
+        [0, 0, 8,  5, 0, 0,  0, 1, 0],
+        [0, 9, 0,  0, 0, 0,  4, 0, 0]
     ]
 
     for row in range(9):
@@ -132,14 +133,14 @@ def initialize_pairs():
     return pairs
 
 
-def print_board(board):
+def print_board(board, debug=False):
     print("\n---------------------")
     for row in range(9):
         for col in range(9):
-            if board == None:
+            if board == None or False:
                 print("Unsolvable")
                 return
-            elif type(board[row][col]) == int:
+            elif type(board[row][col]) == int or debug:
                 print(board[row][col], end=" ")
             else:
                 print(" ", end=" ")
@@ -251,7 +252,7 @@ def only_spot_validation(board, setList):
     return board, setList
 
 
-def hidden_pair(board):
+def naked_pair(board):
     pairs = initialize_pairs()
     for row in range(9):
         for col in range(9):
@@ -292,6 +293,66 @@ def hidden_pair(board):
     return board
 
 
+def hidden_triple(board):
+    pairs = initialize_pairs()
+    for row in range(9):
+        for col in range(9):
+            pair = board[row][col]
+            if type(pair) == list and len(pair) == 2:
+                box = get_box(row, col)
+                # check if there is a pair in any rows
+                if pair in pairs["rows"][row]:
+                    for i in range(9):
+                        value = board[row][i]
+                        if type(value) == list and value != pair:
+                            for num in pair:
+                                if num in value:
+                                    board[row][i].remove(num)
+                else:
+                    pairs["rows"][row].append(pair)
+                # check if there is a pair in any columns
+                if pair in pairs["cols"][col]:
+                    for i in range(9):
+                        value = board[i][col]
+                        if type(value) == list and value != pair:
+                            for num in pair:
+                                if num in value:
+                                    board[i][col].remove(num)
+                else:
+                    pairs["cols"][col].append(pair)
+                if pair in pairs["boxes"][box]:
+                    x, y = get_box_coords(box)
+                    for i in range(3):
+                        for j in range(3):
+                            value = board[x+i][y+j]
+                            if type(value) == list and value != pair:
+                                for num in pair:
+                                    if num in value:
+                                        board[x+i][y+j].remove(num)
+                else:
+                    pairs["boxes"][box].append(pair)
+    return board
+
+
+def bifurcate(board):
+    #print("Bifurcating!")
+    #print_board(board, True)
+    for row in range(9):
+        for col in range(9):
+            pair = board[row][col]
+            if type(pair) == list and len(pair) == 2:
+                board1 = deepcopy(board)
+                set_value(board1, board[row][col][0], row, col)
+                board1 = solve_sudoku(board1)
+                if board1:
+                    return board1
+                board2 = deepcopy(board)
+                set_value(board2, board[row][col][1], row, col)
+                board2 = solve_sudoku(board2)
+                if board2:
+                    return board2
+    return False
+
 def solve_sudoku(board):
     unsolved = True
     setList = initialize_possibilities()
@@ -302,10 +363,13 @@ def solve_sudoku(board):
             for col in range(9):
                 if setList[row][col] != 1 or type(board[row][col]) == list:
                     unsolved = True
-                    if repetitions > 100:
-                        if type(board[row][col]) == list and len(board[row][col]) == 0:
-                            print("0 Possibilities Error")
-                        return
+                    if type(board[row][col]) == list and len(board[row][col]) == 0:
+                        return False
+                    if repetitions > 80:
+                        #board = bifurcate(board)
+                        #if board:
+                        #    return board
+                        return False
                     value = board[row][col]
                     if type(value) != int and len(value) == 1:
                         board = set_value(board, value[0], row, col)
@@ -315,7 +379,7 @@ def solve_sudoku(board):
                         setList[row][col] = 1
 
         board, setList = only_spot_validation(board, setList)
-        board = hidden_pair(board)
+        board = naked_pair(board)
         repetitions += 1
     return board
 
@@ -324,7 +388,6 @@ def main():
     start = time.time()
     board = initialize_possibilities()
     board = get_zero_board()
-    print(board)
     print_board(board)
     board = solve_sudoku(board)
     print_board(board)

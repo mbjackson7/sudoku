@@ -97,6 +97,19 @@ def initialize_inkala_board(board):
     board[8][6] = 4
     return board
 
+def import_board():
+    board=  [
+[0, 6, 0, 0, 0, 8, 2, 5, 0],
+[0, 0, 0, 0, 5, 0, 8, 0, 0],
+[0, 2, 0, 0, 7, 0, 0, 0, 1],
+[3, 0, 0, 0, 0, 6, 4, 0, 0],
+[0, 9, 0, 0, 4, 0, 0, 0, 7],
+[0, 0, 1, 0, 0, 0, 0, 0, 6],
+[0, 8, 0, 3, 0, 9, 0, 1, 0],
+[0, 0, 6, 0, 0, 5, 0, 0, 0],
+[0, 3, 0, 0, 0, 0, 0, 0, 2],
+]
+    return board
 
 M = 9
 def puzzle(a):
@@ -145,7 +158,7 @@ def Suduko(grid, row, col):
 
 start = time.time()
 grid = get_board()
-grid = initialize_expert_board(grid)
+grid = import_board()
 if (Suduko(grid, 0, 0)):
     puzzle(grid)
 else:
