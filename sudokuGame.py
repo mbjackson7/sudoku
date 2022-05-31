@@ -16,7 +16,7 @@ def splash_screen():
   print("==============================================")
 
 def print_controls():
-  board, solution = generate_board(81)
+  _, solution = generate_board(81)
   print("A board looks likes this, with row and column labels on the sides")
   print_guided_board(solution)
   input("Press Enter To Continue...")
@@ -54,6 +54,25 @@ def get_remaining(board):
       if type(board[row][col]) == list:
         remaining += 1
   return remaining
+
+def get_time(seconds):
+  sModifier = ""
+  mModifier = ""
+  if seconds >= 3600:
+    hours = int(seconds // 3600)
+    minutes = int(int(seconds % 3600) // 60)
+    seconds = int(seconds % 60)
+    if minutes < 10:
+      mModifier = "0"
+    if seconds < 10:
+      sModifier = "0"
+    return str(hours) + ":" + mModifier + str(minutes) + ":" + sModifier + str(seconds)
+  else:
+    minutes = int(seconds // 60)
+    seconds = int(seconds % 60)
+    if seconds < 10:
+      sModifier = "0"
+    return str(minutes) + ":" + sModifier + str(seconds)
 
 def main():
     strikes = 0
@@ -104,7 +123,7 @@ def main():
         print("You did it, congratulations!")
 
       end = time.time()
-      print("Elapsed Time:" + str(end - start) + "\n")
+      print("Elapsed Time:  " + str(get_time(end - start)) + "\n")
       while True:
         playAgain = input("Play again? (y/n): ")
         if playAgain == "y":
