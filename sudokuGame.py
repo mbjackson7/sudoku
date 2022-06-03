@@ -32,10 +32,9 @@ def print_controls():
 
 
 def print_guided_board(board):
-    print("\n    1 2 3   4 5 6   7 8 9")
-    print()
+    print("\n   |-------|-------|-------|")
     for row in range(9):
-        print(str(row+1) + "  ", end=" ")
+        print(str(row+1) + "  |", end=" ")
         for col in range(9):
             if board == None:
                 print("Unsolvable")
@@ -44,11 +43,12 @@ def print_guided_board(board):
                 print(board[row][col], end=" ")
             else:
                 print(" ", end=" ")
-            if col == 2 or col == 5:
+            if col == 2 or col == 5 or col == 8:
                 print("|", end=" ")
         print()
-        if row == 2 or row == 5:
-            print("    ------|-------|------")
+        if row == 2 or row == 5 or row == 8:
+            print("   |-------|-------|-------|")
+    print("\n     1 2 3   4 5 6   7 8 9")
     print()
 
 
@@ -149,6 +149,7 @@ def main():
             playAgain = input("Play again? (y/n): ")
             if playAgain == "y":
                 print()
+                strikes = 0
                 break
             elif playAgain == "n":
                 playing = False
