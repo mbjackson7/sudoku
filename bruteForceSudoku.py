@@ -155,13 +155,16 @@ def Suduko(grid, row, col):
     return False
  
 '''0 means the cells where no value is assigned'''
+def main():
+    start = time.time()
+    grid = get_board()
+    grid = initialize_expert_board(grid)
+    if (Suduko(grid, 0, 0)):
+        puzzle(grid)
+    else:
+        print("Solution does not exist:(")
+    end = time.time()
+    print("Elapsed Time:" + str(end - start))
 
-start = time.time()
-grid = get_board()
-grid = import_board()
-if (Suduko(grid, 0, 0)):
-    puzzle(grid)
-else:
-    print("Solution does not exist:(")
-end = time.time()
-print("Elapsed Time:" + str(end - start))
+if __name__ == "__main__":
+    main()
