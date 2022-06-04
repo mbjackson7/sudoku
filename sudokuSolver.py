@@ -391,7 +391,7 @@ def backtracking(board, row, col):
     return False
 
 
-def solve_sudoku(board):
+def solve_sudoku(board, generationMode=False):
     unsolved = True
     setList = initialize_possibilities()
     repetitions = 0
@@ -404,9 +404,10 @@ def solve_sudoku(board):
                     if type(board[row][col]) == list and len(board[row][col]) == 0:
                         return False
                     if repetitions > 80:
-                        backtracking(board, 0, 0)
-                        if board:
-                            return board
+                        if not generationMode:
+                            backtracking(board, 0, 0)
+                            if board:
+                                return board
                         return False
                     value = board[row][col]
                     if type(value) != int and len(value) == 1:
