@@ -23,6 +23,7 @@ app.add_middleware(
 @app.get("/start/{id}/{difficulty}")
 def start(id: str, difficulty: int):
     print(games)
+    print(id)
     for id in games:
         if games[id].gameOver or games[id].lastUpdated < time.time() - 86400:
             games.pop(id)
