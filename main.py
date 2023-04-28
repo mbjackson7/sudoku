@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from typing import Union
 from sudokuGame import SudokuGame 
 import os
@@ -8,6 +9,16 @@ import time
 app = FastAPI()
 
 games = {}
+
+origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/start/{id}/{difficulty}")
 def start(id: str, difficulty: int):
