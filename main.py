@@ -10,7 +10,8 @@ app = FastAPI()
 games = {}
 
 @app.get("/start/{id}/{difficulty}")
-def read_item(id: str, difficulty: int, q: Union[str, None] = None):
+def start(id: str, difficulty: int):
+    print(games)
     for id in games:
         if games[id].gameOver or games[id].lastUpdated < time.time() - 86400:
             games.pop(id)
