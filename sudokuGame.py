@@ -3,34 +3,6 @@ import random
 from sudokuSolver import print_board, set_value
 from sudokuGenerator import generate_board
 
-
-def splash_screen():
-    print("==============================================")
-    print("  _____  _    _  _____    ____   _  __ _    _ ")
-    print(" / ____|| |  | ||  __ \  / __ \ | |/ /| |  | |")
-    print("| (___  | |  | || |  | || |  | || ' / | |  | |")
-    print(" \___ \ | |  | || |  | || |  | ||  <  | |  | |")
-    print(" ____) || |__| || |__| || |__| || . \ | |__| |")
-    print("|_____/  \____/ |_____/  \____/ |_|\_\ \____/ ")
-    print()
-    print("            PRESS ENTER TO BEGIN")
-    print()
-    print("==============================================")
-
-
-def print_controls():
-    _, solution = generate_board(81)
-    print("A board looks likes this, with row and column labels on the sides")
-    print_guided_board(solution)
-    input("Press Enter To Continue...")
-    print("\nControls:")
-    print("   To enter an answer, type it in the format")
-    print("   \"<row>,<col>,<value>\"")
-    print("   then press enter.")
-    print()
-    print("   If you get stuck, you can type \"hint\" to have one space filled in \n   or \"solve\" to get the solution")
-
-
 def print_guided_board(board):
     print("\n   |-------|-------|-------|")
     for row in range(9):
@@ -92,21 +64,11 @@ def hint(board, solution):
   return board
 
 
-def main():
+def start_game(difficulty: int):
     strikes = 0
     playing = True
-    splash_screen()
-    input()
-    print_controls()
     while playing:
-        difficulty = input("Minimum Known Spaces (Skip For Max Difficulty): ")
-        if difficulty.isdigit():
-            difficulty = int(difficulty)
-        else:
-            difficulty = 0
-        print("Generating Board...")
         board, solution = generate_board(difficulty)
-        print("Go!")
         start = time.time()
         while get_remaining(board) > 0 and strikes < 3:
             print_guided_board(board)
