@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from typing import Union
 from sudokuGame import SudokuGame 
+import os
+import uvicorn
 import time
 
 app = FastAPI()
@@ -51,3 +53,6 @@ def resume(id: str):
         return {"board": games[id].get_2d_board(), "remaining": games[id].remaining, "max_strikes": games[id].maxStrikes, "strikes": games[id].strikes, "time": games[id].startTime}
     else:
         return {"error": "Game ID does not exist"}
+
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="0.0.0.0", port=os.getenv("PORT", default=5000), log_level="info")
