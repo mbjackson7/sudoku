@@ -34,7 +34,7 @@ def reduce_board(board, remainingGoal):
         board[row][col] = [1, 2, 3, 4, 5, 6, 7, 8, 9]
         newBoard = copy.deepcopy(board)
         #exportBoard = copy.deepcopy(board)
-        genSolution = solve_sudoku(board)
+        genSolution = solve_sudoku(board, True)
         #importSolution = test_imported_board(exportBoard)
         board = newBoard
         if genSolution != trueSolution:

@@ -1,6 +1,8 @@
 from copy import deepcopy
 import time
 
+from bruteForceSudoku import initialize_inkala_board
+
 
 def get_board():
     board = []
@@ -81,20 +83,21 @@ def get_custom_board():
     return board
 
 
-def get_zero_board():
-    board = [
-        [8, 0, 0,  0, 0, 0,  0, 0, 0],
-        [0, 0, 3,  6, 0, 0,  0, 0, 0],
-        [0, 7, 0,  0, 9, 0,  2, 0, 0],
+def get_zero_board(board=None):
+    if not board:
+        board = [
+            [8, 0, 0,  0, 0, 0,  0, 0, 0],
+            [0, 0, 3,  6, 0, 0,  0, 0, 0],
+            [0, 7, 0,  0, 9, 0,  2, 0, 0],
 
-        [0, 5, 0,  0, 0, 7,  0, 0, 0],
-        [0, 0, 0,  0, 4, 5,  7, 0, 0],
-        [0, 0, 0,  1, 0, 0,  0, 3, 0],
+            [0, 5, 0,  0, 0, 7,  0, 0, 0],
+            [0, 0, 0,  0, 4, 5,  7, 0, 0],
+            [0, 0, 0,  1, 0, 0,  0, 3, 0],
 
-        [0, 0, 1,  0, 0, 0,  0, 6, 8],
-        [0, 0, 8,  5, 0, 0,  0, 1, 0],
-        [0, 9, 0,  0, 0, 0,  4, 0, 0]
-    ]
+            [0, 0, 1,  0, 0, 0,  0, 6, 8],
+            [0, 0, 8,  5, 0, 0,  0, 1, 0],
+            [0, 9, 0,  0, 0, 0,  4, 0, 0]
+        ]
 
     for row in range(9):
         for col in range(9):
@@ -137,7 +140,7 @@ def print_board(board, debug=False):
     print("\n---------------------")
     for row in range(9):
         for col in range(9):
-            if board == None or False:
+            if board == False or board == None:
                 print("Unsolvable")
                 return
             elif type(board[row][col]) == int or debug:
@@ -353,7 +356,42 @@ def bifurcate(board):
                     return board2
     return False
 
-def solve_sudoku(board):
+
+def test_placement(board, row, col, value):
+    for x in range(9):
+        if board[row][x] == value:
+            return False
+    for x in range(9):
+        if board[x][col] == value:
+            return False
+    startRow = row - row % 3
+    startCol = col - col % 3
+    for i in range(3):
+        for j in range(3):
+            if board[i + startRow][j + startCol] == value:
+                return False
+    return True
+
+
+def backtracking(board, row, col):
+    blank = [1,2,3,4,5,6,7,8,9]
+    if (row == 8 and col == 9):
+        return True
+    if col == 9:
+        row += 1
+        col = 0
+    if type(board[row][col]) != list:
+        return backtracking(board, row, col + 1)
+    for value in range(1, 10): 
+        if test_placement(board, row, col, value):
+            board[row][col] = value
+            if backtracking(board, row, col + 1):
+                return True
+        board[row][col] = blank
+    return False
+
+
+def solve_sudoku(board, generationMode=False):
     unsolved = True
     setList = initialize_possibilities()
     repetitions = 0
@@ -366,9 +404,10 @@ def solve_sudoku(board):
                     if type(board[row][col]) == list and len(board[row][col]) == 0:
                         return False
                     if repetitions > 80:
-                        #board = bifurcate(board)
-                        #if board:
-                        #    return board
+                        if not generationMode:
+                            backtracking(board, 0, 0)
+                            if board:
+                                return board
                         return False
                     value = board[row][col]
                     if type(value) != int and len(value) == 1:
@@ -387,7 +426,7 @@ def solve_sudoku(board):
 def main():
     start = time.time()
     board = initialize_possibilities()
-    board = get_zero_board()
+    board = initialize_expert_board(board)
     print_board(board)
     board = solve_sudoku(board)
     print_board(board)
