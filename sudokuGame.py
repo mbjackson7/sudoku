@@ -97,3 +97,8 @@ class SudokuGame:
             self.strikes += 1
         self.check_game_over()
         
+    def solve(self):
+        self.board = self.solution
+        self.remaining = 0
+        self.gameOver = True
+        

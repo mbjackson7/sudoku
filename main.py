@@ -9,10 +9,6 @@ app = FastAPI()
 
 games = {}
 
-@app.get("/")
-def read_root():
-    return {"404": "Not Found"}
-
 @app.get("/start/{id}/{difficulty}")
 def read_item(id: str, difficulty: int, q: Union[str, None] = None):
     for id in games:
@@ -51,6 +47,17 @@ def hint(id: str):
 def resume(id: str):
     if id in games:
         return {"board": games[id].get_2d_board(), "remaining": games[id].remaining, "max_strikes": games[id].maxStrikes, "strikes": games[id].strikes, "time": games[id].startTime}
+    else:
+        return {"error": "Game ID does not exist"}
+    
+@app.get("/solve/{id}")
+def solve(id: str):
+    if id in games:
+        games[id].solve()
+        data = {"board": games[id].get_2d_board()}
+        if games[id].gameOver:
+            games.pop(id)
+        return data
     else:
         return {"error": "Game ID does not exist"}
 
