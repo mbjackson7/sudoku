@@ -1,123 +1,99 @@
 import time
 import random
-from sudokuSolver import print_board, set_value
 from sudokuGenerator import generate_board
 
-def print_guided_board(board):
-    print("\n   |-------|-------|-------|")
-    for row in range(9):
-        print(str(row+1) + "  |", end=" ")
-        for col in range(9):
-            if board == None:
-                print("Unsolvable")
-                return
-            elif type(board[row][col]) == int:
-                print(board[row][col], end=" ")
-            else:
-                print(" ", end=" ")
-            if col == 2 or col == 5 or col == 8:
-                print("|", end=" ")
-        print()
-        if row == 2 or row == 5 or row == 8:
-            print("   |-------|-------|-------|")
-    print("\n     1 2 3   4 5 6   7 8 9")
-    print()
-
-
-def get_remaining(board):
-    remaining = 0
-    for row in range(9):
-        for col in range(9):
-            if type(board[row][col]) == list:
-                remaining += 1
-    return remaining
-
-
-def get_time(seconds):
-    sModifier = ""
-    mModifier = ""
-    if seconds >= 3600:
-        hours = int(seconds // 3600)
-        minutes = int(int(seconds % 3600) // 60)
-        seconds = int(seconds % 60)
-        if minutes < 10:
-            mModifier = "0"
-        if seconds < 10:
-            sModifier = "0"
-        return str(hours) + ":" + mModifier + str(minutes) + ":" + sModifier + str(seconds)
-    else:
-        minutes = int(seconds // 60)
-        seconds = int(seconds % 60)
-        if seconds < 10:
-            sModifier = "0"
-        return str(minutes) + ":" + sModifier + str(seconds)
-
-
-def hint(board, solution):
-  hint_given = False
-  while not hint_given:
-    row = random.randrange(9)
-    col = random.randrange(9)
-    if type(board[row][col]) == list:
-      board[row][col] = solution[row][col]
-      hint_given = True
-  return board
-
-
-def start_game(difficulty: int):
-    strikes = 0
-    playing = True
-    while playing:
-        board, solution = generate_board(difficulty)
-        start = time.time()
-        while get_remaining(board) > 0 and strikes < 3:
-            print_guided_board(board)
-            print("Remaining: " + str(get_remaining(board)) + "\n")
-            print("Strikes: " + str(strikes) + "\n")
-            answer = input("Next Answer: ")
-            if answer == "solve":
-                break
-            elif answer == "hint":
-                board = hint(board, solution)
-                continue
-            else:
-                answer = answer.split(',')
-                if type(answer) != list or len(answer) != 3 or not answer[0].isdigit() or not answer[1].isdigit() or not answer[2].isdigit():
-                    print("Invalid Entry")
-                    continue
-                row = int(answer[0]) - 1
-                col = int(answer[1]) - 1
-                value = int(answer[2])
-                if row not in range(9) or col not in range(9) or value-1 not in range(9):
-                    print("Invalid Number")
-                    continue
-
-                if solution[row][col] == value:
-                    print("Correct!")
-                    board[row][col] = value
+class SudokuGame:
+    def __init__(self, difficulty: int, maxStrikes: int = 3):
+        self.difficulty = difficulty
+        self.board, self.solution = generate_board(difficulty)
+        self.startTime = time.time()
+        self.remaining: int = self.get_remaining()
+        self.lastUpdated = self.startTime
+        self.strikes = 0
+        self.maxStrikes = maxStrikes
+        self.gameOver = False
+        
+    def __str__(self):
+        boardStr = "\n---------------------\n"
+        for row in range(9):
+            for col in range(9):
+                if self.board == False or self.board == None:
+                    return
+                elif type(self.board[row][col]) == int:
+                    boardStr += f"{self.board[row][col]} "
                 else:
-                    print("Miss!")
-                    strikes += 1
-
-        print_guided_board(solution)
-        if get_remaining(board) > 0:
-            print("Here's the solution, better luck next time and keep practicing!")
-        else:
-            print("You did it, congratulations!")
-
-        end = time.time()
-        print("Elapsed Time:  " + str(get_time(end - start)) + "\n")
-        while True:
-            playAgain = input("Play again? (y/n): ")
-            if playAgain == "y":
-                print()
-                strikes = 0
-                break
-            elif playAgain == "n":
-                playing = False
-                break
+                    boardStr += "  "
+                if col == 2 or col == 5:
+                    boardStr += "| "
             print()
+            if row == 2 or row == 5 or row == 8:
+                boardStr += "---------------------\n"
+        return boardStr
 
+    def get_remaining(self):
+        remaining = 0
+        for row in range(9):
+            for col in range(9):
+                if type(self.board[row][col]) == list:
+                    remaining += 1
+        self.remaining = remaining
+        return remaining
+    
+    def get_2d_board(self):
+        flatBoard = []
+        for row in range(9):
+            for col in range(9):
+                if type(self.board[row][col]) == list:
+                    flatBoard.append(0)
+                else:
+                    flatBoard.append(self.board[row][col])
+        return flatBoard
 
-if __name__ == "__main__":
-    main()
+    def get_time_str(self):
+        seconds = time.time() - self.startTime
+        sModifier = ""
+        mModifier = ""
+        if seconds >= 3600:
+            hours = int(seconds // 3600)
+            minutes = int(int(seconds % 3600) // 60)
+            seconds = int(seconds % 60)
+            if minutes < 10:
+                mModifier = "0"
+            if seconds < 10:
+                sModifier = "0"
+            return str(hours) + ":" + mModifier + str(minutes) + ":" + sModifier + str(seconds)
+        else:
+            minutes = int(seconds // 60)
+            seconds = int(seconds % 60)
+            if seconds < 10:
+                sModifier = "0"
+            return str(minutes) + ":" + sModifier + str(seconds)
+
+    def check_game_over(self):
+        if self.strikes >= self.maxStrikes:
+            self.gameOver = True
+            self.board = self.solution
+        if self.remaining == 0:
+            self.gameOver = True
+
+    def hint(self):
+        self.lastUpdated = time.time()
+        hint_given = False
+        while not hint_given:
+            row = random.randrange(9)
+            col = random.randrange(9)
+            if type(self.board[row][col]) == list:
+                self.board[row][col] = self.solution[row][col]
+                hint_given = True
+                self.remaining -= 1
+        self.check_game_over()
+
+    def check(self, row, col, value):
+        self.lastUpdated = time.time()
+        if self.solution[row][col] == value:
+            self.board[row][col] = value
+            self.remaining -= 1
+        else:
+            self.strikes += 1
+        self.check_game_over()
+        
