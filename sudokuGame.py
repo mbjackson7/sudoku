@@ -25,7 +25,7 @@ class SudokuGame:
                     boardStr += "  "
                 if col == 2 or col == 5:
                     boardStr += "| "
-            print()
+            boardStr += "\n"
             if row == 2 or row == 5 or row == 8:
                 boardStr += "---------------------\n"
         return boardStr
