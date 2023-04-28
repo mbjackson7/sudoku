@@ -26,7 +26,7 @@ def start(id: str, difficulty: int):
     for id in games:
         if games[id].gameOver or games[id].lastUpdated < time.time() - 86400:
             games.pop(id)
-    if id in games:
+    if id in games.keys():
         print(games)
         print(games[id])
         return {"error": "Game ID already exists"}
