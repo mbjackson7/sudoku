@@ -27,6 +27,8 @@ def start(id: str, difficulty: int):
         if games[id].gameOver or games[id].lastUpdated < time.time() - 86400:
             games.pop(id)
     if id in games:
+        print(games)
+        print(games[id])
         return {"error": "Game ID already exists"}
     else:
         games[id] = SudokuGame(difficulty)
