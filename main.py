@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from typing import Union
 from sudokuGame import SudokuGame 
+import time
 
 app = FastAPI()
 
@@ -12,6 +13,9 @@ def read_root():
 
 @app.get("/start/{id}/{difficulty}")
 def read_item(id: str, difficulty: int, q: Union[str, None] = None):
+    for id in games:
+        if games[id].gameOver or games[id].lastUpdated < time.time() - 86400:
+            games.pop(id)
     if id in games:
         return {"error": "Game ID already exists"}
     else:
