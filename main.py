@@ -22,15 +22,10 @@ app.add_middleware(
 
 @app.get("/start/{id}/{difficulty}")
 def start(id: str, difficulty: int):
-    print(games)
-    print(id)
-    for id in games:
-        if games[id].gameOver or games[id].lastUpdated < time.time() - 86400:
-            games.pop(id)
+    for key in games:
+        if games[key].gameOver or games[key].lastUpdated < time.time() - 86400:
+            games.pop(key)
     if id in games.keys():
-        print(id)
-        print(games)
-        print(games[id])
         return {"error": "Game ID already exists"}
     else:
         games[id] = SudokuGame(difficulty)
