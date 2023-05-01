@@ -22,9 +22,16 @@ app.add_middleware(
 
 @app.get("/start/{id}/{difficulty}")
 def start(id: str, difficulty: int):
-    for key in games:
-        if games[key].gameOver or games[key].lastUpdated < time.time() - 86400:
+    toDelete = []
+    try:
+        for key in games:
+            if games[key].gameOver or games[key].lastUpdated < time.time() - 86400:
+                toDelete.append(key)
+        for key in toDelete:
             games.pop(key)
+    except:
+        # if there is an error deleting old games, allow player to continue anyway
+        pass
     if id in games.keys():
         return {"error": "Game ID already exists"}
     else:
